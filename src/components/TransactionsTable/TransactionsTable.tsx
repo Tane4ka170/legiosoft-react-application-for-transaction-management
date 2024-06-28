@@ -14,7 +14,7 @@ import ImportTransactions from "../ImportTransactions/ImportTransactions";
 import ExportTransactions from "../ExportTransactions/ExportTransactions";
 import EditTransactionModal from "../Modal/EditTransactionModal/EditTransactionModal";
 import DeleteConfirmationModal from "../Modal/DeleteConfirmationModal/DeleteConfirmationModal";
-import { CsvTransaction, Transaction } from "../../types/types";
+import { Transaction } from "../../types/types";
 
 const TransactionsTable = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -38,15 +38,8 @@ const TransactionsTable = () => {
     );
   }, [transactions, statusFilter, typeFilter]);
 
-  const handleImport = (data: CsvTransaction[]) => {
-    const formattedData = data.map((item) => ({
-      id: Number(item.TransactionId),
-      status: item.Status,
-      type: item.Type,
-      clientName: item.ClientName,
-      amount: parseFloat(item.Amount.replace("$", "")),
-    }));
-    setTransactions(formattedData);
+  const handleImport = (data: Transaction[]) => {
+    setTransactions(data);
   };
 
   const handleDelete = (id: number) => {

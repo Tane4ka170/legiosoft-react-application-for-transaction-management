@@ -1,14 +1,7 @@
 import React, { useState } from "react";
 import Papa from "papaparse";
 import { Input, Box, Text, Button } from "@chakra-ui/react";
-
-interface Transaction {
-  id: number;
-  status: string;
-  type: string;
-  clientName: string;
-  amount: number;
-}
+import { CsvTransaction, Transaction } from "../../types/types";
 
 const ImportTransactions = ({
   onImport,
@@ -20,10 +13,17 @@ const ImportTransactions = ({
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      Papa.parse<Transaction>(file, {
+      Papa.parse<CsvTransaction>(file, {
         header: true,
         complete: (results) => {
-          onImport(results.data);
+          const formattedData: Transaction[] = results.data.map((item) => ({
+            id: Number(item.TransactionId),
+            status: item.Status,
+            type: item.Type,
+            clientName: item.ClientName,
+            amount: parseFloat(item.Amount.replace("$", "")),
+          }));
+          onImport(formattedData);
         },
         error: () => {
           setError("Error parsing CSV file.");
