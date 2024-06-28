@@ -9,6 +9,8 @@ import {
   Td,
   Button,
   Select,
+  HStack,
+  Text,
 } from "@chakra-ui/react";
 import ImportTransactions from "../ImportTransactions/ImportTransactions";
 import ExportTransactions from "../ExportTransactions/ExportTransactions";
@@ -27,6 +29,8 @@ const TransactionsTable = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const transactionsPerPage = 10;
 
   useEffect(() => {
     setFilteredTransactions(
@@ -65,6 +69,18 @@ const TransactionsTable = () => {
     setIsEditModalOpen(false);
   };
 
+  // Get current transactions
+  const indexOfLastTransaction = currentPage * transactionsPerPage;
+  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+  const currentTransactions = filteredTransactions.slice(
+    indexOfFirstTransaction,
+    indexOfLastTransaction
+  );
+
+  const totalPages = Math.ceil(
+    filteredTransactions.length / transactionsPerPage
+  );
+
   return (
     <Box>
       <ImportTransactions onImport={handleImport} />
@@ -96,7 +112,7 @@ const TransactionsTable = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {filteredTransactions.map((transaction) => (
+          {currentTransactions.map((transaction) => (
             <Tr key={transaction.id}>
               <Td>{transaction.id}</Td>
               <Td>{transaction.status}</Td>
@@ -118,6 +134,25 @@ const TransactionsTable = () => {
           ))}
         </Tbody>
       </Table>
+      <HStack mt={4} justifyContent="space-between">
+        <Button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <Text>
+          Page {currentPage} of {totalPages}
+        </Text>
+        <Button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </Button>
+      </HStack>
       <EditTransactionModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
