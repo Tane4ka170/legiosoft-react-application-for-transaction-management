@@ -5,19 +5,14 @@ import {
   deleteTransaction,
   editTransaction,
 } from "../services/database";
-import { Transaction } from "../types/types";
+import { TransactionsData } from "../types/types";
 
-const useTransactions = (
-  page: number,
-  statusFilter: string,
-  typeFilter: string
-) => {
-  return useQuery<Transaction[], Error>(
-    ["transactions", page, statusFilter, typeFilter],
-    () => fetchTransactions(page, statusFilter, typeFilter)
+const useTransactions = (page: number, status: string, type: string) => {
+  return useQuery<TransactionsData, Error>(
+    ["transactions", page, status, type],
+    () => fetchTransactions(page, status, type)
   );
 };
-
 const useAddTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation(addTransaction, {

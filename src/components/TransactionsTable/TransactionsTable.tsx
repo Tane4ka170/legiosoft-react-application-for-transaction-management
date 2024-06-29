@@ -35,10 +35,13 @@ const TransactionsTable = () => {
   const transactionsPerPage = 10;
 
   const {
-    data: transactions,
+    data: transactionsData,
     isLoading,
     error,
   } = useTransactions(currentPage, statusFilter, typeFilter);
+
+  const { transactions = [], total = 0 } = transactionsData || {};
+
   const addTransaction = useAddTransaction();
   const deleteTransaction = useDeleteTransaction();
   const editTransaction = useEditTransaction();
@@ -61,9 +64,7 @@ const TransactionsTable = () => {
     setIsEditModalOpen(false);
   };
 
-  const totalPages = Math.ceil(
-    (transactions?.length || 0) / transactionsPerPage
-  );
+  const totalPages = Math.ceil(total / transactionsPerPage);
 
   return (
     <Box>
@@ -72,7 +73,7 @@ const TransactionsTable = () => {
           data.forEach((transaction) => addTransaction.mutate(transaction))
         }
       />
-      <ExportTransactions transactions={transactions || []} />
+      <ExportTransactions transactions={transactions} />
       <Select
         placeholder="Filter by status"
         onChange={(e) => setStatusFilter(e.target.value)}
@@ -100,31 +101,26 @@ const TransactionsTable = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {(transactions || [])
-            .slice(
-              (currentPage - 1) * transactionsPerPage,
-              currentPage * transactionsPerPage
-            )
-            .map((transaction) => (
-              <Tr key={transaction.id}>
-                <Td>{transaction.id}</Td>
-                <Td>{transaction.status}</Td>
-                <Td>{transaction.type}</Td>
-                <Td>{transaction.clientName}</Td>
-                <Td>{transaction.amount}</Td>
-                <Td>
-                  <Button onClick={() => handleEdit(transaction)}>Edit</Button>
-                  <Button
-                    onClick={() => {
-                      setSelectedTransaction(transaction);
-                      setIsDeleteModalOpen(true);
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </Td>
-              </Tr>
-            ))}
+          {transactions.map((transaction: Transaction) => (
+            <Tr key={transaction.id}>
+              <Td>{transaction.id}</Td>
+              <Td>{transaction.status}</Td>
+              <Td>{transaction.type}</Td>
+              <Td>{transaction.clientName}</Td>
+              <Td>{transaction.amount}</Td>
+              <Td>
+                <Button onClick={() => handleEdit(transaction)}>Edit</Button>
+                <Button
+                  onClick={() => {
+                    setSelectedTransaction(transaction);
+                    setIsDeleteModalOpen(true);
+                  }}
+                >
+                  Delete
+                </Button>
+              </Td>
+            </Tr>
+          ))}
         </Tbody>
       </Table>
       <HStack mt={4} justifyContent="space-between">

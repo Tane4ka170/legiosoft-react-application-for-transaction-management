@@ -5,14 +5,6 @@ const initializeDatabase = () => {
   alasql(
     "CREATE TABLE transactions (id INT PRIMARY KEY AUTOINCREMENT, status STRING, type STRING, clientName STRING, amount NUMBER)"
   );
-  alasql(
-    "INSERT INTO transactions (status, type, clientName, amount) VALUES (?, ?, ?, ?)",
-    ["Pending", "Refill", "John Doe", 100]
-  );
-  alasql(
-    "INSERT INTO transactions (status, type, clientName, amount) VALUES (?, ?, ?, ?)",
-    ["Completed", "Withdrawal", "Jane Doe", 200]
-  );
 };
 
 initializeDatabase();
@@ -21,16 +13,24 @@ const fetchTransactions = (
   page: number,
   statusFilter: string,
   typeFilter: string
-): Promise<Transaction[]> => {
+): Promise<{ transactions: Transaction[]; total: number }> => {
   const offset = (page - 1) * 10;
-  const result = alasql(
-    `SELECT * FROM transactions WHERE (${
-      statusFilter ? `status = '${statusFilter}'` : "1=1"
-    }) AND (${
-      typeFilter ? `type = '${typeFilter}'` : "1=1"
-    }) LIMIT 10 OFFSET ${offset}`
+  const whereClause = `WHERE ${
+    statusFilter ? `status = '${statusFilter}'` : "1=1"
+  } AND ${typeFilter ? `type = '${typeFilter}'` : "1=1"}`;
+
+  const transactions = alasql(
+    `SELECT * FROM transactions ${whereClause} LIMIT 10 OFFSET ${offset}`
   );
-  return Promise.resolve(result as Transaction[]);
+
+  const total = alasql(
+    `SELECT VALUE COUNT(*) FROM transactions ${whereClause}`
+  );
+
+  return Promise.resolve({
+    transactions: transactions as Transaction[],
+    total,
+  });
 };
 
 const addTransaction = (transaction: Transaction): Promise<void> => {

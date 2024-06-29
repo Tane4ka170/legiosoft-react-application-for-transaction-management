@@ -13,3 +13,8 @@ export interface CsvTransaction {
   ClientName: string;
   Amount: string;
 }
+
+export interface TransactionsData {
+  transactions: Transaction[];
+  total: number;
+}
