@@ -1,17 +1,5 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Button,
-  Select,
-  HStack,
-  Text,
-} from "@chakra-ui/react";
+import { useState } from "react";
+import { Box, HStack, Text } from "@chakra-ui/react";
 import ImportTransactions from "../ImportTransactions/ImportTransactions";
 import ExportTransactions from "../ExportTransactions/ExportTransactions";
 import EditTransactionModal from "../Modal/EditTransactionModal/EditTransactionModal";
@@ -23,6 +11,9 @@ import {
   useEditTransaction,
 } from "../../hooks/useTransactions";
 import { Transaction } from "../../types/types";
+import TransactionsList from "../TransactionsList/TransactionsList";
+import TransactionsPagination from "../TransactionsPagination/TransactionsPagination";
+import TransactionsFilter from "../TransactionsFilter/TransactionsFilter";
 
 const TransactionsTable = () => {
   const [statusFilter, setStatusFilter] = useState<string>("");
@@ -68,80 +59,34 @@ const TransactionsTable = () => {
 
   return (
     <Box>
-      <ImportTransactions
-        onImport={(data) =>
-          data.forEach((transaction) => addTransaction.mutate(transaction))
-        }
-      />
-      <ExportTransactions transactions={transactions} />
-      <Select
-        placeholder="Filter by status"
-        onChange={(e) => setStatusFilter(e.target.value)}
-      >
-        <option value="Pending">Pending</option>
-        <option value="Completed">Completed</option>
-        <option value="Cancelled">Cancelled</option>
-      </Select>
-      <Select
-        placeholder="Filter by type"
-        onChange={(e) => setTypeFilter(e.target.value)}
-      >
-        <option value="Refill">Refill</option>
-        <option value="Withdrawal">Withdrawal</option>
-      </Select>
-      <Table>
-        <Thead>
-          <Tr>
-            <Th>ID</Th>
-            <Th>Status</Th>
-            <Th>Type</Th>
-            <Th>Client Name</Th>
-            <Th>Amount</Th>
-            <Th>Action</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {transactions.map((transaction: Transaction) => (
-            <Tr key={transaction.id}>
-              <Td>{transaction.id}</Td>
-              <Td>{transaction.status}</Td>
-              <Td>{transaction.type}</Td>
-              <Td>{transaction.clientName}</Td>
-              <Td>{transaction.amount}</Td>
-              <Td>
-                <Button onClick={() => handleEdit(transaction)}>Edit</Button>
-                <Button
-                  onClick={() => {
-                    setSelectedTransaction(transaction);
-                    setIsDeleteModalOpen(true);
-                  }}
-                >
-                  Delete
-                </Button>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
-      <HStack mt={4} justifyContent="space-between">
-        <Button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </Button>
-        <Text>
-          Page {currentPage} of {totalPages}
-        </Text>
-        <Button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+      <HStack spacing="4" mb="4" alignItems="center">
+        <Box minW="200px" borderWidth="1px" borderRadius="md" p="2">
+          <Text fontWeight="bold" mb="2">
+            Transactions
+          </Text>
+        </Box>
+        <TransactionsFilter
+          setStatusFilter={setStatusFilter}
+          setTypeFilter={setTypeFilter}
+        />
+        <ImportTransactions
+          onImport={(data) =>
+            data.forEach((transaction) => addTransaction.mutate(transaction))
           }
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </Button>
+        />
+        <ExportTransactions transactions={transactions} />
       </HStack>
+      <TransactionsList
+        transactions={transactions}
+        handleEdit={handleEdit}
+        setSelectedTransaction={setSelectedTransaction}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
+      />
+      <TransactionsPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        setCurrentPage={setCurrentPage}
+      />
       <EditTransactionModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
