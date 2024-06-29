@@ -1,4 +1,3 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import {
@@ -29,7 +28,15 @@ const LoginPage = () => {
   };
 
   return (
-    <Box maxW="sm" mx="auto" mt="10">
+    <Box
+      maxW="sm"
+      mx="auto"
+      mt="20"
+      p="6"
+      boxShadow="lg"
+      borderWidth="1px"
+      borderRadius="md"
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormControl id="username" isInvalid={!!errors.username}>
           <FormLabel>Username</FormLabel>
@@ -53,7 +60,7 @@ const LoginPage = () => {
           )}
         </FormControl>
 
-        <Button mt="6" colorScheme="blue" type="submit">
+        <Button mt="6" colorScheme="blue" type="submit" width="full">
           Login
         </Button>
       </form>
